@@ -11,12 +11,14 @@ Control Logic
 [ ] Convert watering logic to a state machine (IDLE, WATERING, SETTLING, COOLDOWN)
 [ ] Add helper functions for readability (cooldownExpired, settlingComplete, etc.)
 [ ] Tune burst duration and settling delay based on real soil testing
+[ ] Deep sleep modes (ESP32)
+[ ] Add Interrupt-driven low-water detection to prevent pump dry-run
 
 Hardware & Reliability
 ----------------------
 [ ] Add pump runtime safety limits (max runtime per hour)
 [ ] Add reservoir level sensor support
-[ ] Add error handling for sensor failures
+[ ] Add error handling for sensor failures 
 
 ESP32 Migration
 ---------------
@@ -29,6 +31,7 @@ Time & Seasonal Logic
 [ ] Integrate RTC or NTP time source
 [ ] Implement seasonal watering profiles per plant
 [ ] Adjust watering thresholds based on temperature or season
+[ ] Adjust watering times based on time of day (morning/evening watering cycles) and potentially based on sun-rise/set tables
 
 Monitoring & UI
 ---------------
