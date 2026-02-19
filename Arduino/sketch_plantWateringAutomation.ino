@@ -19,6 +19,8 @@ Hardware & Reliability
 [ ] Add pump runtime safety limits (max runtime per hour)
 [ ] Add reservoir level sensor support
 [ ] Add error handling for sensor failures 
+[ ] Brown-out detection
+[ ] Overcurrent protection
 
 ESP32 Migration
 ---------------
