@@ -1,3 +1,42 @@
+/**
+ * @file sketch_plantWateringAutomation.ino
+ * @brief Arduino-based automated plant watering system.
+ * @details
+ * This program monitors soil moisture levels and controls water pumps to
+ * maintain optimal soil conditions for plants. The system performs periodic
+ * moisture checks using non-blocking timing (millis()) and applies burst
+ * watering with settling delays to improve accuracy and prevent overwatering.
+ * The system operates using burst watering cycles with settling delays to
+ * ensure accurate moisture readings and stable soil hydration.
+ * @author Jordan Eleniak
+ * @version 0.5
+ * @date 2026-04-09
+ *
+ * Features:
+ * - Soil moisture calibration (air/water reference values)
+ * - Burst watering with configurable duration
+ * - Settling delay between bursts to allow soil absorption
+ * - Minimum pump-off time to prevent rapid cycling and hardware damage
+ * - Cooldown period to prevent overwatering
+ * - Scalable structure supporting multiple plants
+ *
+ * Hardware:
+ * - Arduino (UNO currently, planned ESP32-S3 migration)
+ * - Capacitive soil moisture sensors
+ * - 4 Channel 5V Relay Module
+ * - Water pumps controlled by relay
+ *
+ * @note
+ * Calibration values must be adjusted per sensor for accurate readings.
+ *
+ * @todo
+ * - Convert control logic to state machine (IDLE, WATERING, SETTLING, COOLDOWN)
+ * - Add RTC/NTP for time-based seasonal watering
+ * - Add OLED/LCD display for system status
+ * - Add WiFi monitoring (ESP32)
+ * - Refactor into header/source files
+*/
+
 // float voltage1 = moistureLevel1 * (3.3 / 675); // Get the voltage reading from capacitive soil moisture sensor
 
 /*
@@ -11,16 +50,12 @@ Control Logic
 [ ] Convert watering logic to a state machine (IDLE, WATERING, SETTLING, COOLDOWN)
 [ ] Add helper functions for readability (cooldownExpired, settlingComplete, etc.)
 [ ] Tune burst duration and settling delay based on real soil testing
-[ ] Deep sleep modes (ESP32)
-[ ] Add Interrupt-driven low-water detection to prevent pump dry-run
 
 Hardware & Reliability
 ----------------------
 [ ] Add pump runtime safety limits (max runtime per hour)
 [ ] Add reservoir level sensor support
-[ ] Add error handling for sensor failures 
-[ ] Brown-out detection
-[ ] Overcurrent protection
+[ ] Add error handling for sensor failures
 
 ESP32 Migration
 ---------------
@@ -33,7 +68,6 @@ Time & Seasonal Logic
 [ ] Integrate RTC or NTP time source
 [ ] Implement seasonal watering profiles per plant
 [ ] Adjust watering thresholds based on temperature or season
-[ ] Adjust watering times based on time of day (morning/evening watering cycles) and potentially based on sun-rise/set tables
 
 Monitoring & UI
 ---------------
@@ -59,7 +93,7 @@ enum PlantState {
 
 // ===== STRUCTS =====
 struct PlantHardware {
-  // Declare constant variables for pump pin and capacitive sould moisture sensor pins
+  // Declare constant variables for pump pin and capacitive soil moisture sensor pins
   const int PumpPin;
   const int SoilMoistureSensorPin;
 };
@@ -102,7 +136,7 @@ struct PlantRuntime {
   // Declare a variable to check if pump is running
   bool pumpRunning;
 
-  // Delare variables for last pump stop time and settling
+  // Declare variables for last pump stop time and settling
   unsigned long lastPumpStopTime;
   bool settling;
 };
@@ -325,26 +359,3 @@ void loop() {
   }
   //delay(1000);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
