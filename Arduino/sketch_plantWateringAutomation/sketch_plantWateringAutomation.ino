@@ -37,7 +37,7 @@
  * - Refactor into header/source files
 */
 
-// float voltage1 = moistureLevel1 * (3.3 / 675); // Get the voltage reading from capacitive soil moisture sensor
+// float voltage = moistureLevel * (3.3 / 675); // Get the voltage reading from capacitive soil moisture sensor
 
 /*
 ===========================
