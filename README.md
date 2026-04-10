@@ -61,7 +61,7 @@ The system is structured with separation between hardware configuration, calibra
 - 4-channel 5V relay module
 - Water pump(s)
 
-> Planned: ESP32-S3 migration for WiFi and advanced features
+> Planned: STM32 migration for enhanced embedded control and ESP32-S3 migration for connectivity and advanced features
 
 ---
 
