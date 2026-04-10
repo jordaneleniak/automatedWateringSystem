@@ -6,9 +6,15 @@ An Arduino-based automated plant watering system that monitors soil moisture and
 
 This project implements a non-blocking irrigation controller using `millis()` timing. It uses burst watering with settling delays to improve measurement accuracy and prevent overwatering.
 
-The system is designed to be scalable and is structured to support multiple plants, future ESP32 migration, and additional features such as WiFi monitoring and seasonal watering logic.
+The system is designed to be scalable and supports multiple plants. It is also structured to enable future migration to STM32 and ESP32 platforms, as well as additional features such as WiFi monitoring and seasonal watering logic.
 
 The system operates using burst watering cycles with settling delays to ensure accurate moisture readings and stable soil hydration.
+
+---
+
+## Motivation
+
+This project was developed to explore embedded system design, non-blocking control logic, and real-world sensor integration for automated plant care.
 
 ---
 
@@ -42,6 +48,12 @@ The system operates using burst watering cycles with settling delays to ensure a
 
 ---
 
+## Architecture
+
+The system is structured with separation between hardware configuration, calibration data, runtime state, and control logic. This allows the core watering logic to be portable across different platforms (Arduino, STM32, ESP32).
+
+---
+
 ## Hardware
 
 - Arduino UNO (current platform)
@@ -57,7 +69,17 @@ The system operates using burst watering cycles with settling delays to ensure a
 
 ```
 Arduino/
-└── sketch_plantWateringAutomation.ino
+└── sketch_plantWateringAutomation/
+    └── sketch_plantWateringAutomation.ino
+
+STM32/
+└── plantWateringAutomation/
+    └── (STM32CubeIDE project files)
+
+ESP32/
+└── (planned implementation)
+
+docs/
 ```
 
 ---
@@ -78,6 +100,14 @@ Arduino/
 ---
 
 ## TODO / Roadmap
+
+### Platform Roadmap
+
+This project is being developed across multiple platforms:
+
+- Arduino UNO – initial prototyping and validation
+- STM32 (L432KC) – embedded system implementation with finer control
+- ESP32 – future expansion with WiFi, NTP, and user interface features
 
 ### High Priority
 - Convert control logic to state machine (IDLE, WATERING, SETTLING, COOLDOWN)
@@ -103,7 +133,7 @@ Arduino/
 
 2. Open the Arduino sketch:
    ```
-   Arduino/sketch_plantWateringAutomation.ino
+   Arduino/sketch_plantWateringAutomation/sketch_plantWateringAutomation.ino
    ```
 
 3. Upload to your Arduino board
