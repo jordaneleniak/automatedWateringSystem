@@ -30,11 +30,17 @@
  * Calibration values must be adjusted per sensor for accurate readings.
  *
  * @todo
+ * - Implement structured test plan using Analog Discovery 2 to validate control logic (simulate moisture signals, verify pump behavior, timing, and thresholds)
+ * - Perform initial tuning of thresholds and timing based on test results
+ * - Add documentation code blocks and improve comments for code readability
+ * - Perform minor code cleanup and helper function extraction (non-structural refactor)
  * - Convert control logic to state machine (IDLE, WATERING, SETTLING, COOLDOWN)
- * - Add RTC/NTP for time-based seasonal watering
- * - Add OLED/LCD display for system status
- * - Add WiFi monitoring (ESP32)
- * - Refactor into header/source files
+ * - Perform real-world tuning based on soil testing
+ * - Refactor project into modular header/source files
+ * - Complete STM32 bring-up and port core watering logic (ADC, GPIO, timing)
+ * - Add reliability features (pump safety limits, reservoir monitoring, sensor error handling)
+ * - Add RTC/NTP and seasonal watering logic
+ * - Implement ESP32 version with WiFi monitoring and UI
 */
 
  #include <Arduino.h>
@@ -43,46 +49,100 @@
 
 /*
 ===========================
+NEXT SESSION PRIORITY
+===========================
+1. Run structured test plan (Analog Discovery 2)
+2. Verify all checklist items
+3. Update "Last Verified Working"
+===========================
+*/
+
+/*
+===========================
 Automated Watering System
 Project TODO List
 ===========================
+
+Testing & Validation
+--------------------
+[ ] Create structured test plan using Analog Discovery 2
+[ ] Simulate moisture signals (triangle, step, edge cases)
+[ ] Verify:
+    - pump start/stop behavior
+    - burst duration timing
+    - settling delay behavior
+    - minimum pump-off enforcement
+    - cooldown logic
+[ ] Add serial logging for state transitions and debugging
 
 Control Logic
 -------------
 [ ] Convert watering logic to a state machine (IDLE, WATERING, SETTLING, COOLDOWN)
 [ ] Add helper functions for readability (cooldownExpired, settlingComplete, etc.)
-[ ] Tune burst duration and settling delay based on real soil testing
+[ ] Validate logic under edge cases (rapid signal changes, threshold boundaries)
+
+STM32 Migration
+---------------
+[ ] Generate STM32 project (L432KC)
+[ ] Configure GPIO for pump control
+[ ] Configure ADC for moisture sensor input
+[ ] Implement timing using HAL_GetTick()
+[ ] Port core watering logic from Arduino
+[ ] Validate behavior matches Arduino implementation
 
 Hardware & Reliability
 ----------------------
 [ ] Add pump runtime safety limits (max runtime per hour)
 [ ] Add reservoir level sensor support
 [ ] Add error handling for sensor failures
+[ ] Validate relay and pump behavior under load
 
-ESP32 Migration
----------------
-[ ] Port sketch from Arduino UNO to ESP32-S3
-[ ] Verify ADC calibration and resolution on ESP32
-[ ] Validate relay/pump compatibility with 3.3V logic
+Calibration & Tuning
+--------------------
+[ ] Define calibration procedure (airValue, waterValue)
+[ ] Validate mapping from raw ADC to percentage
+[ ] Tune burst duration, settling delay, and cooldown using real soil
+[ ] Adjust thresholds for different soil types
 
 Time & Seasonal Logic
 ---------------------
 [ ] Integrate RTC or NTP time source
 [ ] Implement seasonal watering profiles per plant
-[ ] Adjust watering thresholds based on temperature or season
+[ ] Adjust watering behavior based on time/temperature
+
+ESP32 Migration
+---------------
+[ ] Port sketch from Arduino to ESP32-S3
+[ ] Verify ADC calibration and resolution differences
+[ ] Validate relay/pump compatibility with 3.3V logic
+[ ] Integrate WiFi connectivity
 
 Monitoring & UI
 ---------------
 [ ] Add OLED or LCD status display
 [ ] Implement WiFi monitoring dashboard
-[ ] Show plant moisture, state, and last watering time
+[ ] Display plant moisture, system state, and last watering time
 
 Code Organization
 -----------------
 [ ] Split structs and logic into header/source files
-[ ] Separate plant logic from hardware abstraction layer
-[ ] Add logging framework for debugging and tuning
+[ ] Separate hardware abstraction from control logic
+[ ] Create reusable core logic layer for Arduino/STM32/ESP32
+[ ] Add logging/debug framework for testing and validation
 
+----------------------
+Last Verified Working:
+----------------------
+[ ] Basic functionality implemented but not formally tested
+
+----------------------
+Verification Checklist (to be completed during testing phase):
+----------------------
+[ ] millis()-based scheduling (timing accuracy and consistency)
+[ ] burst watering logic (correct start/stop behavior)
+[ ] settling delay (no immediate re-trigger after watering)
+[ ] pump-off protection (prevents rapid cycling)
+[ ] cooldown logic (enforces delay between watering cycles)
 */
 
 // TODO: Implement ENUMS so it's used
