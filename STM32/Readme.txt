@@ -1,0 +1,1 @@
+This part is still under development. The STM32 project was generated with STM32CubeMX for the STM32 L432KC board.

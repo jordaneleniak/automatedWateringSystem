@@ -1,0 +1,23 @@
+!SESSION 2026-04-09 19:19:50.607 -----------------------------------------------
+eclipse.buildId=Version 2.0.0
+java.version=21.0.8
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_CA
+Framework arguments:  C:\Users\jorda\Documents\Engineering Degree\Projects\Automated watering system\automatedWateringSystem\STM32\plantWateringAutomation\STM32CubeIDE\.project
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 C:\Users\jorda\Documents\Engineering Degree\Projects\Automated watering system\automatedWateringSystem\STM32\plantWateringAutomation\STM32CubeIDE\.project
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2026-04-09 19:20:39.802
+!MESSAGE Log4j2 initialized with config file C:\Users\jorda\Documents\Engineering Degree\Projects\Automated watering system\automatedWateringSystem\STM32\.metadata\.log4j2.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2026-04-09 19:20:44.917
+!MESSAGE Started RMI Server, listening on port 41337
+
+!ENTRY com.st.stm32cube.ide.mpu.remote.serial 1 1 2026-04-09 19:20:51.511
+!MESSAGE Executed PowerShell command powershell.exe -Command "Get-CimInstance -ClassName Win32_SerialPort | Select-Object -ExpandProperty DeviceID":
+
+
+!ENTRY com.st.stm32cube.ide.mpu.remote.serial 1 1 2026-04-09 19:20:51.513
+!MESSAGE port: 
+
+!ENTRY org.eclipse.cdt.core 1 0 2026-04-09 19:20:51.750
+!MESSAGE Indexed 'plantWateringAutomation' (23 sources, 81 headers) in 4.48 sec: 5,160 declarations; 26,674 references; 4 unresolved inclusions; 164 syntax errors; 1,329 unresolved names (4%)
