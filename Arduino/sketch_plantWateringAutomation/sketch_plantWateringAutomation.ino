@@ -37,6 +37,8 @@
  * - Refactor into header/source files
 */
 
+ #include <Arduino.h>
+
 // float voltage = moistureLevel * (3.3 / 675); // Get the voltage reading from capacitive soil moisture sensor
 
 /*
@@ -158,14 +160,14 @@ Soil Moisture Sensor pins: A1, A2, A3
 AirValue, use 550 until calibrated
 WaterValue, use 275 until calibrated
 
-Values to try for initialization, but tune based on soil type, pump flowrate, and pot size
+Values to try for initialization, but tune based on soil type, pump flow rate, and pot size
 wateringDuration:   3 seconds
 settlingDelay:      15 seconds
 minPumpOffTime:     8–10 seconds
 wateringCooldown:   1 hour
 */
 /*
-TODO: Verify that the checkInterval is an apporpriate time.
+TODO: Verify that the checkInterval is an appropriate time.
       Remove delayTime when millis() is finished being implemented
       Determine watering duration time, will use 1 second set to milliseconds.
       Double check low and high moisture levels for plant
