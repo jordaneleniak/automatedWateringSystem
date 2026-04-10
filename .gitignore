@@ -1,8 +1,20 @@
+# ===== Build artifacts =====
 *.o
-*.exe
-*.bin
+*.d
 *.elf
+*.bin
 *.hex
 *.map
+*.log
+
+# ===== IDE folders =====
 .vscode/
 build/
+
+# ===== STM32CubeIDE =====
+Debug/
+Release/
+
+# ===== OS files =====
+.DS_Store
+Thumbs.db
