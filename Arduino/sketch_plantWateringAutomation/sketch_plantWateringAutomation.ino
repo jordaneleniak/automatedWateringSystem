@@ -359,10 +359,10 @@ const int arrayLength = sizeof(plants) / sizeof(plants[0]);
 
 // ===== LOGIC FUNCTIONS =====
 // Function to toggle pump on or off based on plant soil moisture
-void updatePlant(PlantSensor &plantSensor){
+void updatePlant(PlantSensor &plantSensor, unsigned long currentTime){
   // Settling delay
   if (plantSensor.runtime -> settling) {
-    if (millis() - plantSensor.runtime -> lastPumpStopTime <
+    if (currentTime - plantSensor.runtime -> lastPumpStopTime <
         plantSensor.config -> settlingDelay) {
       return;
     }
@@ -377,10 +377,10 @@ void updatePlant(PlantSensor &plantSensor){
   }
 
   // Only check moisture periodically
-  if (millis() - plantSensor.runtime -> lastCheckTime < plantSensor.config -> checkInterval) {
+  if (currentTime - plantSensor.runtime -> lastCheckTime < plantSensor.config -> checkInterval) {
     return;
   }
-  plantSensor.runtime -> lastCheckTime = millis();
+  plantSensor.runtime -> lastCheckTime = currentTime;
 
   readMoisture(plantSensor);
 
@@ -404,12 +404,12 @@ void readMoisture(PlantSensor &plantSensor){
   Serial.println(plantSensor.runtime -> soilMoisturePercentage);
 }
 
-void runPump(PlantSensor &plantSensor){
+void runPump(PlantSensor &plantSensor, unsigned long currentTime){
   // Start watering if not already running
   if (!plantSensor.runtime -> pumpRunning) {
     digitalWrite(plantSensor.hardware -> PumpPin, HIGH);
     plantSensor.runtime -> pumpRunning = true;
-    plantSensor.runtime -> pumpStartTime = millis();
+    plantSensor.runtime -> pumpStartTime = currentTime;
     Serial.println("Pump ON");
     return;
   }
@@ -420,33 +420,33 @@ void runPump(PlantSensor &plantSensor){
 
     digitalWrite(plantSensor.hardware->PumpPin, LOW);
     plantSensor.runtime -> pumpRunning = false;
-    plantSensor.runtime -> lastPumpStopTime = millis();
+    plantSensor.runtime -> lastPumpStopTime = currentTime;
     plantSensor.runtime -> settling = true;
-    plantSensor.runtime -> lastWaterTime = millis();
+    plantSensor.runtime -> lastWaterTime = currentTime;
 
     Serial.println("Moisture threshold reached, pump OFF");
     return;
   }
 
   // Stop watering after burst
-  if (millis() - plantSensor.runtime -> pumpStartTime >= plantSensor.config -> wateringDuration) {
+  if (currentTime - plantSensor.runtime -> pumpStartTime >= plantSensor.config -> wateringDuration) {
     
     digitalWrite(plantSensor.hardware -> PumpPin, LOW);
     plantSensor.runtime -> pumpRunning = false;
-    plantSensor.runtime -> lastPumpStopTime = millis();
+    plantSensor.runtime -> lastPumpStopTime = currentTime;
     plantSensor.runtime -> settling = true;
-    plantSensor.runtime -> lastWaterTime = millis();
+    plantSensor.runtime -> lastWaterTime = currentTime;
 
     Serial.println("Pump OFF");
   }
 }
 
-bool cooldownExpired(PlantSensor &plantSensor) {
-  return millis() - plantSensor.runtime -> lastWaterTime >= plantSensor.config -> wateringCooldown;
+bool cooldownExpired(PlantSensor &plantSensor, unsigned long currentTime) {
+  return currentTime - plantSensor.runtime -> lastWaterTime >= plantSensor.config -> wateringCooldown;
 }
 
-bool pumpOffLongEnough(PlantSensor &plant) {
-  return millis() - plant.runtime->lastPumpStopTime >=
+bool pumpOffLongEnough(PlantSensor &plant, unsigned long currentTime) {
+  return currentTime - plant.runtime->lastPumpStopTime >=
          plant.config->minPumpOffTime;
 }
 
@@ -470,9 +470,12 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
+
+  unsigned long now = millis();
+  
   // Toggle pump 1 on or off based on plant soil moisture
   for (int i = 0; i < arrayLength; i++) {
-    updatePlant(plants[i]);
+    updatePlant(plants[i], now);
   }
   //delay(1000);
 }
