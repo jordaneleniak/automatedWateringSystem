@@ -214,11 +214,18 @@ enum PlantState {
   COOLDOWN
 };
 
+// ===== TYPEDEFS =====
+typedef int (*ReadSensorFunc)(int pin);
+typedef void (*WritePumpFunc)(int pin, int value);
+
 // ===== STRUCTS =====
 struct PlantHardware {
   // Declare constant variables for pump pin and capacitive soil moisture sensor pins
   const int PumpPin;
   const int SoilMoistureSensorPin;
+  
+  ReadSensorFunc readSensor;
+  WritePumpFunc writePump;
 };
 
 struct SensorCalibration {
@@ -271,6 +278,15 @@ struct PlantSensor {
   PlantRuntime *runtime;
 };
 
+// ===== ARDUINO IMPLEMENTATIONS =====
+int arduinoReadSensor(int pin) {
+  return analogRead(pin);
+}
+
+void arduinoWritePump(int pin, int value) {
+  digitalWrite(pin, value);
+}
+
 // ===== CONFIGURATION =====
 // Declare and initialize PlantSensor struct, including pins for pumps and capacitive soil moisture sensors, soil moisture percentages, and moisture levels 
 // checkInterval is an hour in milliseconds.
@@ -288,8 +304,10 @@ minPumpOffTime:     8–10 seconds
 wateringCooldown:   1 hour
 */
 PlantHardware pinLayout1 = {
-    2,              // PumpPin
-    A0              // SoilMoistureSensorPin
+    2,                  // PumpPin
+    A0,                 // SoilMoistureSensorPin
+    arduinoReadSensor,  // ReadSensorFunc points to arduinoReadSensor
+    arduinoWritePump    // WritePumpFunc points to arduinoWritePumps
 };
 SensorCalibration calibration1 = {
   564,              // AirValue
@@ -372,7 +390,7 @@ void updatePlant(PlantSensor &plantSensor, unsigned long currentTime){
   // Maintain pump timing if running
   if (plantSensor.runtime -> pumpRunning) {
     readMoisture(plantSensor);
-    runPump(plantSensor);
+    runPump(plantSensor, currentTime);
     return;
   }
 
@@ -385,18 +403,20 @@ void updatePlant(PlantSensor &plantSensor, unsigned long currentTime){
   readMoisture(plantSensor);
 
   // Start watering if dry AND cooldown expired
-  if (plantSensor.runtime -> soilMoisturePercentage <= plantSensor.config -> lowMoisture && cooldownExpired(plantSensor) && pumpOffLongEnough(plantSensor)) {
-    runPump(plantSensor);
+  if (plantSensor.runtime -> soilMoisturePercentage <= plantSensor.config -> lowMoisture && cooldownExpired(plantSensor, currentTime) && pumpOffLongEnough(plantSensor, currentTime)) {
+    runPump(plantSensor, currentTime);
   }
 }
 
 void readMoisture(PlantSensor &plantSensor){
-  plantSensor.runtime -> moistureLevel = analogRead(plantSensor.hardware -> SoilMoistureSensorPin);
+  plantSensor.runtime -> moistureLevel = plantSensor.hardware->readSensor(
+                                            plantSensor.hardware->SoilMoistureSensorPin
+                                          );
   plantSensor.runtime -> soilMoisturePercentage = (float)map(plantSensor.runtime -> moistureLevel, 
-                                                  plantSensor.calibration->AirValue, 
-                                                  plantSensor.calibration->WaterValue, 
-                                                  0, 
-                                                  100);
+                                                              plantSensor.calibration->AirValue, 
+                                                              plantSensor.calibration->WaterValue, 
+                                                              0, 
+                                                              100);
   plantSensor.runtime -> soilMoisturePercentage = constrain(plantSensor.runtime -> soilMoisturePercentage, 0, 100);
   Serial.print("Raw moisture: ");
   Serial.print(plantSensor.runtime -> moistureLevel);
@@ -407,7 +427,10 @@ void readMoisture(PlantSensor &plantSensor){
 void runPump(PlantSensor &plantSensor, unsigned long currentTime){
   // Start watering if not already running
   if (!plantSensor.runtime -> pumpRunning) {
-    digitalWrite(plantSensor.hardware -> PumpPin, HIGH);
+    plantSensor.hardware->writePump(
+      plantSensor.hardware->PumpPin,
+      HIGH
+    );
     plantSensor.runtime -> pumpRunning = true;
     plantSensor.runtime -> pumpStartTime = currentTime;
     Serial.println("Pump ON");
@@ -418,7 +441,10 @@ void runPump(PlantSensor &plantSensor, unsigned long currentTime){
   if (plantSensor.runtime -> soilMoisturePercentage >=
       plantSensor.config -> highMoisture) {
 
-    digitalWrite(plantSensor.hardware->PumpPin, LOW);
+    plantSensor.hardware->writePump(
+      plantSensor.hardware->PumpPin,
+      LOW
+    );
     plantSensor.runtime -> pumpRunning = false;
     plantSensor.runtime -> lastPumpStopTime = currentTime;
     plantSensor.runtime -> settling = true;
@@ -431,7 +457,10 @@ void runPump(PlantSensor &plantSensor, unsigned long currentTime){
   // Stop watering after burst
   if (currentTime - plantSensor.runtime -> pumpStartTime >= plantSensor.config -> wateringDuration) {
     
-    digitalWrite(plantSensor.hardware -> PumpPin, LOW);
+    plantSensor.hardware->writePump(
+      plantSensor.hardware->PumpPin,
+      LOW
+    );
     plantSensor.runtime -> pumpRunning = false;
     plantSensor.runtime -> lastPumpStopTime = currentTime;
     plantSensor.runtime -> settling = true;
@@ -472,7 +501,7 @@ void loop() {
   // put your main code here, to run repeatedly:
 
   unsigned long now = millis();
-  
+
   // Toggle pump 1 on or off based on plant soil moisture
   for (int i = 0; i < arrayLength; i++) {
     updatePlant(plants[i], now);
