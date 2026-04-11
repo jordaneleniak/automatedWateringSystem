@@ -18,6 +18,45 @@ This project was developed to explore embedded system design, non-blocking contr
 
 ---
 
+## Architecture
+
+The system is structured with separation between hardware configuration, calibration data, runtime state, and control logic. This allows the core watering logic to be portable across different platforms (Arduino, STM32, ESP32).
+
+## Architecture Direction
+
+The system is being refactored into two layers:
+
+- **Core Logic Layer**
+  - Platform-independent
+  - Contains watering logic, timing rules, and state decisions
+  - Unit tested on PC
+
+- **Hardware Layer**
+  - Platform-specific (Arduino, STM32, ESP32)
+  - Handles ADC, GPIO, and timing functions
+
+This separation enables portability and easier testing.
+
+---
+
+## Testing Strategy
+
+This project follows a layered testing approach:
+
+- **Unit Testing (PC)**
+  - Core logic is refactored into platform-independent functions
+  - Tested using native C++ frameworks (planned: GoogleTest or similar)
+
+- **Embedded Testing (Arduino)**
+  - Uses AUnit to validate timing behavior and hardware interaction
+
+- **Hardware Validation**
+  - Digilent Analog Discovery 2 used to simulate sensor signals and verify system response
+
+To support this, logic is being separated from hardware-specific code (e.g., `millis()`, `digitalWrite()`).
+
+---
+
 ## Features
 
 - Soil moisture calibration (air/water reference values)
@@ -48,12 +87,6 @@ This project was developed to explore embedded system design, non-blocking contr
 
 ---
 
-## Architecture
-
-The system is structured with separation between hardware configuration, calibration data, runtime state, and control logic. This allows the core watering logic to be portable across different platforms (Arduino, STM32, ESP32).
-
----
-
 ## Hardware
 
 - Arduino UNO (current platform)
@@ -78,6 +111,12 @@ STM32/
 
 ESP32/
 └── (planned implementation)
+
+lib/                # (planned) shared logic (platform-independent)
+
+test/
+├── arduino/        # AUnit tests (on-device)
+└── native/         # (planned) PC-based unit tests (logic)
 
 docs/
 ```
@@ -121,6 +160,17 @@ This project is being developed across multiple platforms:
 - WiFi monitoring dashboard
 - OLED/LCD display
 - Code refactoring into header/source files
+
+### State Management (Planned)
+
+Future versions will include:
+
+- Plant initialization phase (baseline moisture detection)
+- Per-plant reset capability (for sensor reassignment)
+- Persistent state storage (EEPROM / RTC / NTP)
+- Safe startup handling after power loss
+
+These features will be implemented as part of the state machine design.
 
 ---
 

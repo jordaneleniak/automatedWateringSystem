@@ -28,15 +28,22 @@
  *
  * @note
  * Calibration values must be adjusted per sensor for accurate readings.
+ * Core logic functions will avoid direct use of Arduino APIs and instead receive inputs (e.g., time) as parameters to enable unit testing.
  *
  * @todo
- * - Implement structured test plan using Analog Discovery 2 to validate control logic (simulate moisture signals, verify pump behavior, timing, and thresholds)
+ * - Set up testing infrastructure (test/ directory, AUnit for Arduino, native unit testing for logic)
+ * - Refactor logic into unit-testable functions (remove direct millis(), digitalWrite(), etc. from core logic)
  * - Perform initial tuning of thresholds and timing based on test results
+ * - Implement structured test plan using Analog Discovery 2 to validate control logic (simulate moisture signals, verify pump behavior, timing, and thresholds)
  * - Add documentation code blocks and improve comments for code readability
- * - Perform minor code cleanup and helper function extraction (non-structural refactor)
- * - Convert control logic to state machine (IDLE, WATERING, SETTLING, COOLDOWN)
+ * - Convert control logic to state machine:
+ *   - Lifecycle states: UNINITIALIZED, INITIALIZING, READY
+ *   - Operational states: IDLE, WATERING, SETTLING, COOLDOWN
+ *   - Events/actions:
+ *       - RESET (forces transition to UNINITIALIZED)
+ * - Implement plant initialization, reset handling, and persistent state (EEPROM/RTC integration)
  * - Perform real-world tuning based on soil testing
- * - Refactor project into modular header/source files
+ * - Refactor project into modular header/source files (lib/ structure)
  * - Complete STM32 bring-up and port core watering logic (ADC, GPIO, timing)
  * - Add reliability features (pump safety limits, reservoir monitoring, sensor error handling)
  * - Add RTC/NTP and seasonal watering logic
@@ -107,12 +114,34 @@ Testing & Validation
     - minimum pump-off enforcement
     - cooldown logic
 [ ] Add serial logging for state transitions and debugging
+[ ] Set up test directory structure (test/arduino, test/native)
+[ ] Add initial unit tests for core logic (cooldown, thresholds, timing)
+[ ] Separate hardware-dependent code from logic for testing
+
+Code Organization
+-----------------
+[ ] Refactor logic into testable units
+    - Remove direct use of millis(), digitalWrite(), etc.
+    - Pass hardware inputs as parameters
 
 Control Logic
 -------------
-[ ] Convert watering logic to a state machine (IDLE, WATERING, SETTLING, COOLDOWN)
+[ ] Convert watering logic to a state machine
+    - Implement lifecycle states (UNINITIALIZED, INITIALIZING, READY)
+    - Implement operational states (IDLE, WATERING, SETTLING, COOLDOWN)
+    - Define events/actions:
+        - RESET (resets plant to UNINITIALIZED state)
+    - Ensure initialization is required before entering normal operation
 [ ] Add helper functions for readability (cooldownExpired, settlingComplete, etc.)
 [ ] Validate logic under edge cases (rapid signal changes, threshold boundaries)
+
+State Initialization & Persistence
+---------------------------------
+[ ] Implement plant initialization phase (baseline moisture reading)
+[ ] Add per-plant reset capability (sensor reassignment)
+[ ] Design persistent state structure (EEPROM or future RTC-based)
+[ ] Handle safe startup after power loss (startup delay + sensor check)
+[ ] Ensure system does not water immediately after boot
 
 STM32 Migration
 ---------------
