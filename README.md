@@ -6,7 +6,7 @@ An Arduino-based automated plant watering system that monitors soil moisture and
 
 This project implements a non-blocking irrigation controller using `millis()` timing. It uses burst watering with settling delays to improve measurement accuracy and prevent overwatering.
 
-The system is designed to be scalable and supports multiple plants. It is also structured to enable future migration to STM32 and ESP32 platforms, as well as additional features such as WiFi monitoring and seasonal watering logic.
+The system is designed to be scalable and supports multiple plants while maintaining accurate readings and stable soil hydration. It is also structured to enable future migration to STM32 and ESP32 platforms, as well as additional features such as WiFi monitoring and seasonal watering logic.
 
 The system operates using burst watering cycles with settling delays to ensure accurate moisture readings and stable soil hydration.
 
@@ -22,7 +22,7 @@ This project was developed to explore embedded system design, non-blocking contr
 
 The system is structured with separation between hardware configuration, calibration data, runtime state, and control logic. This allows the core watering logic to be portable across different platforms (Arduino, STM32, ESP32).
 
-## Architecture Direction
+### Architecture Direction
 
 The system is being refactored into two layers:
 
@@ -39,6 +39,24 @@ This separation enables portability and easier testing.
 
 ---
 
+## Design Principles
+
+- Non-blocking control using `millis()`
+- Separation of logic and hardware layers
+- Testable design with unit, component, and integration testing across software and hardware layers
+- Scalability for multi-plant systems
+- Fault tolerance (safe startup, future persistence)
+
+---
+
+## Known Limitations
+
+- No persistent state storage implemented yet
+- No RTC/NTP integration (timing resets on power loss)
+- Hardware validation not yet completed
+
+---
+
 ## Testing Strategy
 
 This project follows a layered testing approach:
@@ -51,7 +69,9 @@ This project follows a layered testing approach:
   - Uses AUnit to validate timing behavior and hardware interaction
 
 - **Hardware Validation**
-  - Digilent Analog Discovery 2 used to simulate sensor signals and verify system response
+  - Hardware Validation
+    - Performed after unit and integration testing
+    - Uses Digilent Analog Discovery 2 to simulate sensor signals and verify system response
 
 To support this, logic is being separated from hardware-specific code (e.g., `millis()`, `digitalWrite()`).
 
@@ -149,7 +169,11 @@ This project is being developed across multiple platforms:
 - ESP32 – future expansion with WiFi, NTP, and user interface features
 
 ### High Priority
-- Convert control logic to state machine (IDLE, WATERING, SETTLING, COOLDOWN)
+- Convert control logic to state machine:
+  - Lifecycle states: UNINITIALIZED, INITIALIZING, READY
+  - Operational states: IDLE, WATERING, SETTLING, COOLDOWN
+  - Events/actions:
+    - RESET (forces transition to UNINITIALIZED)
 
 ### Medium Priority
 - Add RTC/NTP for time-based watering

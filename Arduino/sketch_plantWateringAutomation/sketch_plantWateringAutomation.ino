@@ -126,7 +126,7 @@ Code Organization
 
 Control Logic
 -------------
-[ ] Convert watering logic to a state machine
+[ ] Convert watering logic to a state machine (using ENUMS for states)
     - Implement lifecycle states (UNINITIALIZED, INITIALIZING, READY)
     - Implement operational states (IDLE, WATERING, SETTLING, COOLDOWN)
     - Define events/actions:
@@ -207,7 +207,6 @@ Verification Checklist (to be completed during testing phase):
 [ ] cooldown logic (enforces delay between watering cycles)
 */
 
-// TODO: Implement ENUMS so it's used
 // ===== ENUMS =====
 enum PlantState {
   IDLE,
@@ -287,12 +286,6 @@ wateringDuration:   3 seconds
 settlingDelay:      15 seconds
 minPumpOffTime:     8–10 seconds
 wateringCooldown:   1 hour
-*/
-/*
-TODO: Verify that the checkInterval is an appropriate time.
-      Remove delayTime when millis() is finished being implemented
-      Determine watering duration time, will use 1 second set to milliseconds.
-      Double check low and high moisture levels for plant
 */
 PlantHardware pinLayout1 = {
     2,              // PumpPin
