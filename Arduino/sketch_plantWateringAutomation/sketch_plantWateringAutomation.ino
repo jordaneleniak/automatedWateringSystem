@@ -51,6 +51,7 @@
 */
 
  #include <Arduino.h>
+ #include "../lib/irrigation_controller/irrigation_controller.h"
 
 // Get the voltage reading from capacitive soil moisture sensor
 // Note: This is not used in control logic, but may be useful for testing,
@@ -91,7 +92,7 @@
 ===========================
 NEXT SESSION PRIORITY
 ===========================
-1. Run structured test plan (Analog Discovery 2)
+1. Run structured test plan
 2. Verify all checklist items
 3. Update "Last Verified Working"
 ===========================
@@ -120,9 +121,9 @@ Testing & Validation
 
 Code Organization
 -----------------
-[ ] Refactor logic into testable units
-    - Remove direct use of millis(), digitalWrite(), etc.
-    - Pass hardware inputs as parameters
+[x] Refactor logic into testable units
+    -[x] Remove direct use of millis(), digitalWrite(), etc.
+    -[x] Pass hardware inputs as parameters
 
 Control Logic
 -------------

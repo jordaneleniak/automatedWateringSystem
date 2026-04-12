@@ -133,6 +133,9 @@ ESP32/
 └── (planned implementation)
 
 lib/                # (planned) shared logic (platform-independent)
+└── irrigation_controller/
+    ├── irrigation_controller.h
+    └── irrigation_controller.cpp
 
 test/
 ├── arduino/        # AUnit tests (on-device)
