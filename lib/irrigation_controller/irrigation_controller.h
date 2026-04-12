@@ -65,6 +65,16 @@ void runPump(PlantSensor &plantSensor, unsigned long currentTime);
 bool cooldownExpired(PlantSensor &plantSensor, unsigned long currentTime);
 bool pumpOffLongEnough(PlantSensor &plant, unsigned long currentTime);
 
+// ===== CREATION FUNCTIONS =====
+PlantRuntime createRuntime();
+
+PlantSensor createPlant(
+    PlantHardware *hardware,
+    SensorCalibration *calibration,
+    PlantConfig *config,
+    PlantRuntime *runtime
+);
+
 #define HIGH 1
 
 #define LOW 0

@@ -1,4 +1,8 @@
+#ifdef ARDUINO
+#include <Arduino.h>
+#else
 #include <cstdio>
+#endif
 #include "irrigation_controller.h"
 
 // ===== UTILITY FUNCTIONS =====
