@@ -444,7 +444,7 @@ void readMoisture(PlantSensor &plantSensor){
                                                             plantSensor.calibration->WaterValue,
                                                             0,
                                                             100);
-  plantSensor.runtime -> soilMoisturePercentage = clamp(plantSensor.runtime -> soilMoisturePercentage, 0, 100);
+  plantSensor.runtime -> soilMoisturePercentage = clamp(plantSensor.runtime -> soilMoisturePercentage, 0.0f, 100.0f);
   char msg[96];
   snprintf(msg, sizeof(msg),
     "Raw moisture: %d. Moisture %%: %.2f",
