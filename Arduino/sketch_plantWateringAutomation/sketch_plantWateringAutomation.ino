@@ -293,6 +293,26 @@ void arduinoLog(const char* message) {
   Serial.println(message);
 }
 
+// ===== UTILITY FUNCTIONS =====
+float mapFloat(
+    float x,
+    float in_min,
+    float in_max,
+    float out_min,
+    float out_max
+) {
+    if (in_max == in_min) return out_min;
+
+    return (x - in_min) * (out_max - out_min) /
+           (in_max - in_min) + out_min;
+}
+
+float clamp(float value, float minVal, float maxVal) {
+    if (value < minVal) return minVal;
+    if (value > maxVal) return maxVal;
+    return value;
+}
+
 // ===== CONFIGURATION =====
 // Declare and initialize PlantSensor struct, including pins for pumps and capacitive soil moisture
 // sensors, soil moisture percentages, and moisture levels checkInterval is an hour in milliseconds.
@@ -419,12 +439,12 @@ void readMoisture(PlantSensor &plantSensor){
   plantSensor.runtime -> moistureLevel = plantSensor.hardware->readSensor(
                                             plantSensor.hardware->SoilMoistureSensorPin
                                           );
-  plantSensor.runtime -> soilMoisturePercentage = (float)map(plantSensor.runtime -> moistureLevel, 
-                                                              plantSensor.calibration->AirValue, 
-                                                              plantSensor.calibration->WaterValue, 
-                                                              0, 
-                                                              100);
-  plantSensor.runtime -> soilMoisturePercentage = constrain(plantSensor.runtime -> soilMoisturePercentage, 0, 100);
+  plantSensor.runtime -> soilMoisturePercentage = mapFloat(plantSensor.runtime->moistureLevel,
+                                                            plantSensor.calibration->AirValue,
+                                                            plantSensor.calibration->WaterValue,
+                                                            0,
+                                                            100);
+  plantSensor.runtime -> soilMoisturePercentage = clamp(plantSensor.runtime -> soilMoisturePercentage, 0, 100);
   char msg[96];
   snprintf(msg, sizeof(msg),
     "Raw moisture: %d. Moisture %%: %.2f",
