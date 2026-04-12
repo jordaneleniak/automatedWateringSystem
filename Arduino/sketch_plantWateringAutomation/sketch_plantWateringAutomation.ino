@@ -217,6 +217,7 @@ enum PlantState {
 // ===== TYPEDEFS =====
 typedef int (*ReadSensorFunc)(int pin);
 typedef void (*WritePumpFunc)(int pin, int value);
+typedef void (*LogFunc)(const char* message);
 
 // ===== STRUCTS =====
 struct PlantHardware {
@@ -226,6 +227,7 @@ struct PlantHardware {
   
   ReadSensorFunc readSensor;
   WritePumpFunc writePump;
+  LogFunc log;
 };
 
 struct SensorCalibration {
@@ -287,9 +289,13 @@ void arduinoWritePump(int pin, int value) {
   digitalWrite(pin, value);
 }
 
+void arduinoLog(const char* message) {
+  Serial.println(message);
+}
+
 // ===== CONFIGURATION =====
-// Declare and initialize PlantSensor struct, including pins for pumps and capacitive soil moisture sensors, soil moisture percentages, and moisture levels 
-// checkInterval is an hour in milliseconds.
+// Declare and initialize PlantSensor struct, including pins for pumps and capacitive soil moisture
+// sensors, soil moisture percentages, and moisture levels checkInterval is an hour in milliseconds.
 /*
 Pins for future plant sensors:
 Pump pins: 3, 4, 5
@@ -307,7 +313,8 @@ PlantHardware pinLayout1 = {
     2,                  // PumpPin
     A0,                 // SoilMoistureSensorPin
     arduinoReadSensor,  // ReadSensorFunc points to arduinoReadSensor
-    arduinoWritePump    // WritePumpFunc points to arduinoWritePumps
+    arduinoWritePump,    // WritePumpFunc points to arduinoWritePump
+    arduinoLog           // LogFunc points to arduinoLog
 };
 SensorCalibration calibration1 = {
   564,              // AirValue
@@ -418,10 +425,13 @@ void readMoisture(PlantSensor &plantSensor){
                                                               0, 
                                                               100);
   plantSensor.runtime -> soilMoisturePercentage = constrain(plantSensor.runtime -> soilMoisturePercentage, 0, 100);
-  Serial.print("Raw moisture: ");
-  Serial.print(plantSensor.runtime -> moistureLevel);
-  Serial.print(". Moisture %: ");
-  Serial.println(plantSensor.runtime -> soilMoisturePercentage);
+  char msg[96];
+  snprintf(msg, sizeof(msg),
+    "Raw moisture: %d. Moisture %%: %.2f",
+    plantSensor.runtime->moistureLevel,
+    plantSensor.runtime->soilMoisturePercentage
+  );
+  plantSensor.hardware->log(msg);
 }
 
 void runPump(PlantSensor &plantSensor, unsigned long currentTime){
@@ -433,7 +443,7 @@ void runPump(PlantSensor &plantSensor, unsigned long currentTime){
     );
     plantSensor.runtime -> pumpRunning = true;
     plantSensor.runtime -> pumpStartTime = currentTime;
-    Serial.println("Pump ON");
+    plantSensor.hardware->log("Pump ON");
     return;
   }
 
@@ -450,7 +460,7 @@ void runPump(PlantSensor &plantSensor, unsigned long currentTime){
     plantSensor.runtime -> settling = true;
     plantSensor.runtime -> lastWaterTime = currentTime;
 
-    Serial.println("Moisture threshold reached, pump OFF");
+    plantSensor.hardware->log("Moisture threshold reached, pump OFF");
     return;
   }
 
@@ -466,7 +476,7 @@ void runPump(PlantSensor &plantSensor, unsigned long currentTime){
     plantSensor.runtime -> settling = true;
     plantSensor.runtime -> lastWaterTime = currentTime;
 
-    Serial.println("Pump OFF");
+    plantSensor.hardware->log("Pump OFF");
   }
 }
 
