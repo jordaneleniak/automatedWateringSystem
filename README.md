@@ -35,7 +35,7 @@ The system is being refactored into two layers:
   - Platform-specific (Arduino, STM32, ESP32)
   - Handles ADC, GPIO, and timing functions
 
-This separation enables portability and easier testing.
+This layered design improves testability, portability, and long-term maintainability.
 
 ---
 
@@ -92,7 +92,7 @@ To support this, logic is being separated from hardware-specific code (e.g., `mi
 
 1. Periodically reads soil moisture
 2. Converts raw sensor values to percentage using calibration
-3. If soil is too dry:
+3. If soil moisture falls below the configured lower threshold:
    - Starts a watering burst
 4. After watering:
    - Waits for a settling delay
@@ -103,6 +103,8 @@ To support this, logic is being separated from hardware-specific code (e.g., `mi
 6. Enforces:
    - Pump protection timing
    - Cooldown period
+
+> Thresholds are defined relative to calibrated sensor values and approximate soil moisture ranges (e.g., between dry and near field capacity conditions for the specific plant).
 
 ---
 
@@ -141,7 +143,24 @@ lib/                               # Shared logic + test framework (Catch2)
     └── catch_amalgamated.hpp
 
 test/                               # Unit tests (Catch2, native environment)
-└── test_math.cpp                   # Core logic tests
+├── staging/                        # These tests are under development and are not yet included in the main test runner (test_main.cpp)
+│   ├── creation/
+│   │   ├── test_createPlant.cpp
+│   │   └── test_createRuntime.cpp
+│   ├── logic/
+│   │   ├── test_readMoisture.cpp
+│   │   ├── test_runPump.cpp
+│   │   └── test_updatePlant.cpp
+│   ├── mock/
+│   │   ├── mock_hardware.cpp
+│   │   └── mock_hardware.h
+│   ├── state/
+│   ├── timing/
+│   │   ├── test_cooldown.cpp
+│   │   └── test_pumpTiming.cpp
+├── test_main.cpp                   # Active test runner
+├── test_clamp.cpp
+└── test_mapFloat.cpp
 
 docs/
 ```
@@ -150,8 +169,9 @@ docs/
 
 ## Current Status
 
-**Version:** 0.5  
+**Version:** 0.7.0  (Development Phase)
 **State:** Functional and stable core logic implemented
+**Focus:** Expanding test coverage and validating system behavior
 
 ### Completed
 - Non-blocking timing system
@@ -160,6 +180,48 @@ docs/
 - Pump protection (minimum off-time)
 - Cooldown logic
 - Struct-based modular design
+
+---
+
+## 🔢 Version Goals
+
+This project follows a structured versioning approach where each major version represents a meaningful increase in system reliability and capability.
+
+### 🟡 Version 0.x — Development Phase
+- Core functionality is being implemented and refined
+- Architecture is evolving (modularization, testing, refactoring)
+- Unit testing and validation are in progress
+- Breaking changes may occur
+
+---
+
+### 🟢 Version 1.0.0 — Deployable Arduino System
+Goal: A reliable, fully functional watering system that can be used in real-world conditions.
+
+Planned features:
+- Stable moisture-based watering logic
+- Calibration process for different plants/environments
+- Reliable timing and control behavior
+- Arduino-based implementation (UNO)
+- Powered via wall adapter (barrel jack or USB)
+- Simple, reproducible hardware setup (no custom PCB required)
+- Verified through unit, component, and real-world testing
+
+---
+
+### 🔵 Version 2.0.0 — Expanded & Enhanced System
+Goal: Improve flexibility, efficiency, and system design.
+
+Planned features:
+- State machine-based architecture
+- Multi-platform support (STM32, ESP32, etc.)
+- Advanced power system:
+  - Wall power + battery backup
+  - Power source switching
+  - Low-power operation mode
+- Custom PCB design
+- Optional enclosure (case design)
+- Increased modularity and system scalability
 
 ---
 
@@ -185,6 +247,7 @@ This project is being developed across multiple platforms:
   - Rapid moisture fluctuations
   - Boundary thresholds (exact low/high values)
   - Timing edge cases (overflow-safe comparisons)
+- Validate system behavior under edge cases
 
 ---
 
@@ -226,6 +289,18 @@ This project is being developed across multiple platforms:
 
 ---
 
+### Documentation
+- Create system connection diagram
+- Collect component datasheets (or equivalent references):
+  - Arduino UNO
+  - Relay module (4-channel)
+  - Capacitive soil moisture sensor v1.2
+  - Water pump
+- Create component reference notes if datasheets are unavailable
+- Document system architecture and design decisions
+
+---
+
 ### Hardware & Reliability
 
 - Add pump runtime safety limits (max runtime per hour)
@@ -233,11 +308,18 @@ This project is being developed across multiple platforms:
 - Add sensor failure detection and handling
 - Validate relay and pump behavior under real load
 
+- Design basic V1 power setup:
+  - Arduino powered via wall (USB or barrel jack)
+  - Pumps powered via external source
+- Create connection (wiring) diagram for system
+- Plan V2 power system (battery backup + switching)
+
 ---
 
 ### Calibration & Tuning
 
 - Define calibration procedure (AirValue, WaterValue)
+- Perform real-world testing and calibration
 - Validate ADC → percentage mapping
 - Tune:
   - watering duration
@@ -262,6 +344,12 @@ This project is being developed across multiple platforms:
   - system state
   - last watering time
 - Implement WiFi dashboard (ESP32)
+
+---
+
+### Physical Design
+- Evaluate enclosure options (V1 optional)
+- Plan enclosure design for V2
 
 ---
 
