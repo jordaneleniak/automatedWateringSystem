@@ -63,15 +63,14 @@ This project follows a layered testing approach:
 
 - **Unit Testing (PC)**
   - Core logic is refactored into platform-independent functions
-  - Tested using native C++ frameworks (planned: GoogleTest or similar)
+  - Tested using native C++ frameworks (Using Catch2 (native C++) for unit testing)
 
 - **Embedded Testing (Arduino)**
   - Uses AUnit to validate timing behavior and hardware interaction
 
 - **Hardware Validation**
-  - Hardware Validation
-    - Performed after unit and integration testing
-    - Uses Digilent Analog Discovery 2 to simulate sensor signals and verify system response
+  - Performed after unit and integration testing
+  - Uses Digilent Analog Discovery 2 to simulate sensor signals and verify system response
 
 To support this, logic is being separated from hardware-specific code (e.g., `millis()`, `digitalWrite()`).
 
@@ -132,14 +131,17 @@ STM32/
 ESP32/
 └── (planned implementation)
 
-lib/                # (planned) shared logic (platform-independent)
-└── irrigation_controller/
-    ├── irrigation_controller.h
-    └── irrigation_controller.cpp
+lib/                               # Shared logic + test framework (Catch2)
+├── irrigation_controller/
+│   ├── irrigation_controller.cpp
+│   ├── irrigation_controller.h
+│   └── ic_main.cpp.disable        # Disabled during unit testing to avoid multiple entry points (main function conflict)
+└── catch/
+    ├── catch_amalgamated.cpp
+    └── catch_amalgamated.hpp
 
-test/
-├── arduino/        # AUnit tests (on-device)
-└── native/         # (planned) PC-based unit tests (logic)
+test/                               # Unit tests (Catch2, native environment)
+└── test_math.cpp                   # Core logic tests
 
 docs/
 ```
@@ -171,22 +173,97 @@ This project is being developed across multiple platforms:
 - STM32 (L432KC) – embedded system implementation with finer control
 - ESP32 – future expansion with WiFi, NTP, and user interface features
 
-### High Priority
+### Current Focus: Testing & Validation
+
+- Expand unit test coverage (Catch2)
+  - Test core math/utilities (mapFloat, clamp) ✅
+  - Test plant creation and initialization logic
+  - Test moisture reading and percentage conversion
+  - Test pump control logic (start/stop conditions)
+  - Test timing logic (cooldown, settling, min off time)
+- Validate logic against edge cases
+  - Rapid moisture fluctuations
+  - Boundary thresholds (exact low/high values)
+  - Timing edge cases (overflow-safe comparisons)
+
+---
+
+### Next Phase: Control Logic Improvements
+
+- Add documentation and comments for improved readability
 - Convert control logic to state machine:
   - Lifecycle states: UNINITIALIZED, INITIALIZING, READY
   - Operational states: IDLE, WATERING, SETTLING, COOLDOWN
   - Events/actions:
     - RESET (forces transition to UNINITIALIZED)
+- Add helper functions for clarity (e.g., `cooldownExpired`, `settlingComplete`)
+- Improve readability and maintainability of control flow
+- Refactor into modular components (architectural decomposition):
+  - Separate plant logic, control logic, and hardware interfaces
+  - Organize into dedicated header/source files
 
-### Medium Priority
-- Add RTC/NTP for time-based watering
+---
+
+### Platform Development
+
+- Complete STM32 bring-up
+  - Configure ADC and GPIO
+  - Implement HAL-based timing
+  - Port and validate core logic
+
+- Implement ESP32 version
+  - Validate ADC differences
+  - Add WiFi capability
+  - Prepare for remote monitoring
+
+---
+
+### Code Organization
+
+- Finalize separation of logic and hardware layers
+- Expand reusable core logic module
+- Add logging/debug framework for testing and validation
+
+---
+
+### Hardware & Reliability
+
+- Add pump runtime safety limits (max runtime per hour)
+- Add reservoir level sensor support
+- Add sensor failure detection and handling
+- Validate relay and pump behavior under real load
+
+---
+
+### Calibration & Tuning
+
+- Define calibration procedure (AirValue, WaterValue)
+- Validate ADC → percentage mapping
+- Tune:
+  - watering duration
+  - settling delay
+  - cooldown timing
+
+---
+
+### Time & Smart Features
+
+- Integrate RTC or NTP time source for time-based watering
 - Implement seasonal watering profiles
+- Adjust watering behavior based on environment (time/temp)
 
-### Future Enhancements
-- ESP32 migration
-- WiFi monitoring dashboard
-- OLED/LCD display
-- Code refactoring into header/source files
+---
+
+### Monitoring & UI
+
+- Add OLED/LCD display
+- Display:
+  - moisture level
+  - system state
+  - last watering time
+- Implement WiFi dashboard (ESP32)
+
+---
 
 ### State Management (Planned)
 
