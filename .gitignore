@@ -8,6 +8,9 @@
 *.log
 
 # ===== IDE folders =====
+.pio/
+.pioenvs/
+.piolibdeps/
 .vscode/
 build/
 

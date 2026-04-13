@@ -1,0 +1,7 @@
+#include "irrigation_controller.h"
+
+#ifndef UNIT_TEST
+int main() {
+    // your existing code
+}
+#endif
