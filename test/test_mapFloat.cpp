@@ -60,28 +60,4 @@ TEST_CASE("mapFloat inverted both ranges", "[mapFloat]") {
     REQUIRE(mapFloat(50, 100, 0, 1, 0) == Catch::Approx(0.5));
 //    REQUIRE(mapFloat(0, 100, 0, 1, 0) == Catch::Approx(1.0));
 //    REQUIRE(mapFloat(100, 100, 0, 1, 0) == Catch::Approx(0.0));
-
-
-// TODO: Investigate double-inverted range behavior
-// Currently commented out because mapFloat does not support
-// both input AND output ranges being inverted simultaneously.
-//
-// Expected:
-//   mapFloat(0,   100, 0, 1, 0) -> 1.0
-//   mapFloat(100, 100, 0, 1, 0) -> 0.0
-//
-// Actual:
-//   Returns inconsistent values (0.0 / 1.0)
-//
-// Reason:
-//   Current implementation assumes at most one inverted range.
-//   Double inversion leads to incorrect scaling.
-//
-// Potential fixes:
-//   1. Normalize ranges before mapping
-//   2. Explicitly document behavior as undefined
-//   3. Add guard logic for inversion cases
-
-// REQUIRE(mapFloat(0,   100, 0, 1, 0) == Catch::Approx(1.0));
-// REQUIRE(mapFloat(100, 100, 0, 1, 0) == Catch::Approx(0.0));
 }
